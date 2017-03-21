@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+    <beans:beans profile="SCORE_ADMIN">
+        <global-method-security pre-post-annotations="enabled"/>
+        <http auto-config="true" entry-point-ref="authenticaionEntryPoint"
+              access-decision-manager-ref="accessDecisionManager" use-expressions="true">
+            <intercept-url pattern="/service/score/*"   access="hasIpAddress('127.0.0.1')"/>
+            <!--<intercept-url pattern="/login" access="isAnonymous()"/>-->
+            <intercept-url pattern="/jobs/**" access="hasAnyRole('scoresuper','registered')"/>
+            <intercept-url pattern="/lookUp/**" access="hasAnyRole('scoresuper','scoreadmin' , 'score_lookup')"/>
+            <intercept-url pattern="/cache/**" access="hasAnyRole('scoresuper','scoretech')"/>
+            <intercept-url pattern="/icaRules/**" access="hasAnyRole('scoresuper','scoreadmin' ,'ica_rule_creator')"/>
+            <intercept-url pattern="/admin/shippingProvider/**"
+                           access="hasAnyRole('scoresuper','scoreadmin' ,'shipping_provider_detail_creator', 'return_shipping_provider_detail_creator')"/>
+            <intercept-url pattern="/admin/shippingProvider/return/**"
+                           access="hasAnyRole('scoresuper','scoreadmin' ,'return_shipping_provider_detail_creator')"/>
+            <intercept-url pattern="/upload/shippingReach"
+                           access="hasAnyRole('scoresuper','scoreadmin','uploader','category_uploader','logistics_uploader')"/>
+            <intercept-url pattern="/upload/shippingMode"
+                           access="hasAnyRole('scoresuper','scoreadmin,uploader','shipping_mode_uploader')"/>
+            <intercept-url pattern="/upload/shippingLocation"
+                           access="hasAnyRole('scoresuper','scoreadmin','uploader','shipping_location_uploader')"/>
+            <intercept-url pattern="/upload/returnshippingLocation"
+                           access="hasAnyRole('scoresuper','scoreadmin','uploader','return_shipping_location_uploader')"/>
+            <intercept-url pattern="/upload/rstn"
+                           access="hasAnyRole('scoreadmin','uploader','return_shipping_tracking_number_uploader')"/>
+            <intercept-url pattern="/serviceabilityRules/rulesCreate"
+                           access="hasAnyRole('scoresuper','rtv_rule_creator', 'scoreadmin','rule_creator','vendor_rule_creator','category_rule_creator','supc_rule_creator','fc_rule_creator','courier_rule_creator')"/>
+            <intercept-url pattern="/serviceabilityRules/rulesEdit"
+                           access="hasAnyRole('scoresuper','rtv_rule_creator', 'scoreadmin','rule_creator','vendor_rule_creator','category_rule_creator','supc_rule_creator','fc_rule_creator','courier_rule_creator')"/>
+            <intercept-url pattern="/serviceabilityRules/vendorRuleCreate"
+                           access="hasAnyRole('scoresuper','scoreadmin','rule_creator','vendor_rule_creator')"/>
+            <intercept-url pattern="/serviceabilityRules/categoryRuleCreate"
+                           access="hasAnyRole('scoresuper','scoreadmin','rule_creator','category_rule_creator')"/>
+            <intercept-url pattern="/serviceabilityRules/supcRuleCreate"
+                           access="hasAnyRole('scoresuper','scoreadmin','rule_creator','supc_rule_creator')"/>
+            <intercept-url pattern="/serviceabilityRules/fcRuleCreate"
+                           access="hasAnyRole('scoresuper','scoreadmin','rule_creator','fc_rule_creator')"/>
+            <intercept-url pattern="/serviceabilityRules/courierRuleCreate"
+                           access="hasAnyRole('scoresuper','scoreadmin','rule_creator','courier_rule_creator')"/>
+            <intercept-url pattern="/returnICARules/**"
+                           access="hasAnyRole('scoresuper','scoreadmin','rule_creator','return_courier_rule_creator')"/>
+            <intercept-url pattern="/warehouseRules/**"
+                           access="hasAnyRole('scoresuper','scoreadmin','rule_creator','warehouse_rule_creator')"/>
+            <intercept-url pattern="/admin/template/**" access="hasAnyRole('scoresuper','scoretech')"/>
+            <intercept-url pattern="/admin/shippingModeMapping/**"
+                           access="hasAnyRole('scoresuper','scoretech','replaymodemapping')"/>
+            <intercept-url pattern="/admin/shippingLocation/**"
+                           access="hasAnyRole('scoresuper','scoretech','replayshippinglocation')"/>
+            <intercept-url pattern="/admin/cache/**" access="hasAnyRole('scoresuper','scoretech')"/>
+            <intercept-url pattern="/admin/usermanagement/**"
+                           access="hasAnyRole('scoresuper','scoreadmin','scoretech','usermanagement')"/>
+            <intercept-url pattern="/admin/card/**"
+                           access="hasAnyRole('scoresuper','scoreadmin','scoretech','ratecardadmin')"/>
+            <intercept-url pattern="/upload/deliverySLA"
+                           access="hasAnyRole('scoresuper','scoreadmin','uploader','courier_delivery_sla_uploader')"/>
+            <intercept-url pattern="/upload/postalCode"
+                           access="hasAnyRole('scoresuper','scoreadmin','uploader','postal_code_uploader')"/>
+            <intercept-url pattern="/admin/courierSLAAdd/**"
+                           access="hasAnyRole('scoresuper','scoreadmin','additional_sla_creator')"/>
+            <intercept-url pattern="/admin/courierIntegration/**"
+                           access="hasAnyRole('scoresuper','scoreadmin','new_courier_creator')"/>
+            <form-login login-page="/login" login-processing-url="/login_security_check"
+                        always-use-default-target="false" default-target-url="/"
+                        authentication-success-handler-ref="customSuccessHandler"
+                        authentication-failure-handler-ref="customFailureHandler"/>
+            <logout invalidate-session="true" logout-url="/logout" success-handler-ref="sdLogoutSuccessHandler"/>
+            <remember-me key="snapdealRem"/>
+        </http>
+        <beans:bean id="sdLogoutSuccessHandler" class="com.snapdeal.score.web.security.CustomLogoutSuccessHandler">
+        </beans:bean>
+        <beans:bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+            <beans:property name="decisionVoters">
+                <beans:list>
+                    <beans:ref bean="roleVoter"/>
+                    <beans:ref bean="authenticatedVoter"/>
+                    <beans:ref bean="webExpressionVoter"/>
+                </beans:list>
+            </beans:property>
+        </beans:bean>
+        <beans:bean id="roleVoter" class="org.springframework.security.access.vote.RoleVoter">
+            <beans:property name="rolePrefix" value=""/>
+        </beans:bean>
+        <beans:bean id="webExpressionVoter"
+                    class="org.springframework.security.web.access.expression.WebExpressionVoter">
+        </beans:bean>
+        <beans:bean id="authenticatedVoter" class="org.springframework.security.access.vote.AuthenticatedVoter">
+        </beans:bean>
+        <beans:bean id="customSuccessHandler" class="com.snapdeal.score.web.security.CustomSuccessHandler">
+        </beans:bean>
+        <beans:bean id="customFailureHandler" class="com.snapdeal.score.web.security.CustomFailureHandler">
+            <beans:constructor-arg name="defaultFailureUrl" value="/login?authenticated=false"/>
+        </beans:bean>
+        <beans:bean id="userDetailsService" class="com.snapdeal.score.web.security.CustomUserDetailsService">
+        </beans:bean>
+        <authentication-manager alias="authenticationManager">
+            <authentication-provider user-service-ref="userDetailsService">
+            </authentication-provider>
+        </authentication-manager>
+        <beans:bean id="authenticaionEntryPoint"
+                    class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+            <beans:property name="loginFormUrl" value="/login"/>
+        </beans:bean>
+    </beans:beans>
+
+    <beans:beans profile="SCORE,ICA">
+        <http auto-config="true" security="none"/>
+    </beans:beans>
+
+
+</beans:beans>
+
