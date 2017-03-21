@@ -4,12 +4,17 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 public class CacheProperties {
 	
-	private Properties properties;
-
+	private List<String> serverList;
+	
+	private String filePath;
+	
 	public void reloadCache(String componentName, Integer graphiteReportingInterval) {
 
         //SystemPropertiesCache spc = CacheManager.getInstance().getCache(SystemPropertiesCache.class);
@@ -38,19 +43,24 @@ public class CacheProperties {
                 throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
             }
 
-            synchronized (properties) {
-				properties=temp;
-			}
+            	filePath = (String)temp.get(Constants.filePath);
+            	String seedNodes= (String)temp.get(Constants.seedNode);
+            	serverList = Arrays.asList(seedNodes.split(Pattern.quote("$")));
+				
 
-            System.out.println(properties);
+            System.out.println("FilePath: "+filePath);
+            System.out.println("ServerList"+serverList);
     }
         catch(Exception ex){
         	System.out.println("Error while uploading");
         }
 	}
 	
+	public List<String> getServerList(){
+		return serverList;
+	}
 	
-	public Properties getCache(){
-		return properties;
+	public String getFilePath(){
+		return filePath;
 	}
 }

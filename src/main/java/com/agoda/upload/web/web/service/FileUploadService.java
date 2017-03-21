@@ -12,7 +12,7 @@ public class FileUploadService {
 	
 	public void uploadFile(MultipartFile file,boolean doReplicate){
 		
-		String filePath = cache.getCache().getProperty(Constants.filePath)+file.getName();
+		String filePath = cache.getFilePath();
 		saveMultiPartFile(file, filePath);
 		if(doReplicate){
 			
@@ -24,6 +24,7 @@ public class FileUploadService {
 	}
 	
 	public void replicateOnServers(MultipartFile file){
-		
+		for(String serverIp:cache.getServerList()){
+		}
 	}
 }
