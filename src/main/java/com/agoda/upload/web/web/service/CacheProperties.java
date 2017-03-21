@@ -20,17 +20,7 @@ public class CacheProperties {
 	@PostConstruct
 	public void reloadCache(String componentName, Integer graphiteReportingInterval) {
 
-        String serverName = null;
-        try {
-            serverName = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            serverName = "catalog";
-        }
-        String env = null;
         InputStream inputStream;
-        InputStream camsInputStream;
-        String graphiteUrl;
-        Integer graphitePort;
         try {
             String propFileName = "server.properties";
 //            String propFile = "file.properties";
