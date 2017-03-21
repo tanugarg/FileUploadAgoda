@@ -24,13 +24,15 @@ public class FIleUploadController {
                                  HttpServletRequest request, @RequestParam(value = "param") String param) {
         //TODO service code here
 
+    	boolean isSuccess;
     	if(action.equalsIgnoreCase("Replicate")){
-    		fileUploadService.uploadFile(file, true);
+    		isSuccess = fileUploadService.uploadFile(file, true);
     	}
     	else{
-    		fileUploadService.uploadFile(file, false);
+    		isSuccess = fileUploadService.uploadFile(file, false);
     	}
-    		
+    	model.addObject(isSuccess);
+    	
         return "admin/fileUpload/fileUpload";
     }
 }

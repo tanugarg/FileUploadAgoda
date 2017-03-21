@@ -9,15 +9,16 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
+
 public class CacheProperties {
 	
 	private List<String> serverList;
 	
 	private String filePath;
 	
+	@PostConstruct
 	public void reloadCache(String componentName, Integer graphiteReportingInterval) {
-
-        //SystemPropertiesCache spc = CacheManager.getInstance().getCache(SystemPropertiesCache.class);
 
         String serverName = null;
         try {
@@ -45,7 +46,9 @@ public class CacheProperties {
 
             	filePath = (String)temp.get(Constants.filePath);
             	String seedNodes= (String)temp.get(Constants.seedNode);
-            	serverList = Arrays.asList(seedNodes.split(Pattern.quote("$")));
+            	if(!seedNodes.isEmpty()){
+            		serverList = Arrays.asList(seedNodes.split(Pattern.quote("$")));
+            	}
 				
 
             System.out.println("FilePath: "+filePath);
