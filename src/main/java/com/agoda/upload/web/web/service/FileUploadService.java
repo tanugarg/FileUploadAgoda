@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -36,12 +37,13 @@ public class FileUploadService {
 		String filePath = cache.getFilePath();
 		try {
 			saveMultiPartFile(file, filePath);
-			updateFileStatusInMysqlBatch(cache.getServerList(),filePath,FileUploadStatus.INPROGRESS);
+			updateFileStatusInMysqlBatch(cache.getCurrentIP(),cache.getServerList(),filePath,FileUploadStatus.INPROGRESS);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
+		//TODO In separate thread. This call will block this thread
 		if(doReplicate){
 			replicateOnServers(file,filePath);
 		}
@@ -62,10 +64,10 @@ public class FileUploadService {
 			try {
 				Boolean b = (Boolean)entry.getValue().get();
 				if(b != Boolean.TRUE){
-					updateFileStatusInMysql(entry.getKey(),filePath,FileUploadStatus.FAILURE);
+					updateFileStatusInMysql(cache.getCurrentIP(),entry.getKey(),filePath,FileUploadStatus.FAILURE);
 				}
 				else{
-					updateFileStatusInMysql(entry.getKey(),filePath,FileUploadStatus.SUCCESS);
+					updateFileStatusInMysql(cache.getCurrentIP(),entry.getKey(),filePath,FileUploadStatus.SUCCESS);
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -78,11 +80,11 @@ public class FileUploadService {
 	}
 	
 	
-	public void updateFileStatusInMysqlBatch(List<String> serverIpList,String filePath,FileUploadStatus status){
+	public void updateFileStatusInMysqlBatch(String currentIP,Set<String> serverIpList,String filePath,FileUploadStatus status){
 		
 	}
 	
-	public void updateFileStatusInMysql(String serverIp,String filePath,FileUploadStatus status){
+	public void updateFileStatusInMysql(String currentIP,String serverIp,String filePath,FileUploadStatus status){
 		
 	}
 }
