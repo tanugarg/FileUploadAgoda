@@ -1,5 +1,7 @@
 package com.agoda.upload.web.web.service;
 
+import org.springframework.stereotype.Component;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -15,7 +17,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
-
+@Component
 public class CacheProperties {
 	
 	private HashSet<String> serverList;

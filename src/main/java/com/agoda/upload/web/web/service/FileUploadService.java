@@ -1,20 +1,13 @@
 package com.agoda.upload.web.web.service;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import javax.annotation.PostConstruct;
 
+import com.agoda.upload.web.web.entities.FailedReplicationEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,11 +19,16 @@ public class FileUploadService {
 	CacheProperties cache;
 	
 	ThreadPoolExecutor threadPool;
-	
+
+	static Map<String,Set<String>>failedReplicationMap = new ConcurrentHashMap<String, Set<String>>();
+
 	@PostConstruct
 	public void init(){
         BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
         threadPool = new ThreadPoolExecutor(0,10,60,TimeUnit.MINUTES,workQueue);
+		FailedReplicationProcessor failedReplicationProcessor = new FailedReplicationProcessor(failedReplicationMap);
+		Thread thread = new Thread(failedReplicationProcessor);
+		thread.start();
 	}
 	
 	public boolean uploadFile(MultipartFile file,boolean doReplicate){
@@ -39,16 +37,16 @@ public class FileUploadService {
 		try {
 			String savedPath= saveMultiPartFile(file, filePath);
 			System.out.println("File saved at location " + savedPath);
-			updateFileStatusInMysqlBatch(cache.getCurrentIP(),cache.getServerList(),filePath,FileUploadStatus.INPROGRESS);
+			if(doReplicate){
+				replicateOnServers(file,savedPath,cache.getServerList());
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
 		//TODO In separate thread. This call will block this thread
-		if(doReplicate){
-			replicateOnServers(file,filePath);
-		}
+
 		return true;
 	}
 	
@@ -59,9 +57,9 @@ public class FileUploadService {
 		return completePath;
 	}
 	
-	public void replicateOnServers(MultipartFile file,String filePath){
+	public void replicateOnServers(MultipartFile file,String savedPath,Set<String> serverList){
 		Map<String ,Future<Object>> threadMap = new HashMap<String ,Future<Object>>();
-		for(String serverIp:cache.getServerList()){
+		for(String serverIp:serverList){
 			Future<Object> submit = threadPool.submit(new ReplicationThreads(file, serverIp));
 			threadMap.put(serverIp, submit);
 		}
@@ -69,10 +67,7 @@ public class FileUploadService {
 			try {
 				Boolean b = (Boolean)entry.getValue().get();
 				if(b != Boolean.TRUE){
-					updateFileStatusInMysql(cache.getCurrentIP(),entry.getKey(),filePath,FileUploadStatus.FAILURE);
-				}
-				else{
-					updateFileStatusInMysql(cache.getCurrentIP(),entry.getKey(),filePath,FileUploadStatus.SUCCESS);
+					addFailedReplications(entry.getKey(),savedPath);
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -85,11 +80,27 @@ public class FileUploadService {
 	}
 	
 	
-	public void updateFileStatusInMysqlBatch(String currentIP,Set<String> serverIpList,String filePath,FileUploadStatus status){
-		
+//	public void updateFileStatusInMysqlBatch(String currentIP,Set<String> serverIpList,String filePath,FileUploadStatus status){
+//
+//	}
+//
+//	public void updateFileStatusInMysql(String currentIP,String serverIp,String filePath,FileUploadStatus status){
+//
+//	}
+
+	public  void addFailedReplications(String savedPath, String ip) {
+		synchronized (failedReplicationMap) {
+			if (failedReplicationMap.get(savedPath) != null) {
+				Set<String> failedIps = failedReplicationMap.get(savedPath);
+				failedIps.add(ip);
+				failedReplicationMap.put(savedPath, failedIps);
+			} else {
+				Set<String> failedIps = new HashSet<String>();
+				failedIps.add(ip);
+				failedReplicationMap.put(savedPath, failedIps);
+			}
+		}
+
 	}
-	
-	public void updateFileStatusInMysql(String currentIP,String serverIp,String filePath,FileUploadStatus status){
-		
-	}
+
 }
