@@ -1,4 +1,4 @@
-package com.agoda.upload.web.web.service;
+package com.agoda.upload.service;
 
 import java.io.File;
 import java.util.*;
@@ -6,15 +6,13 @@ import java.util.Map.Entry;
 import java.util.concurrent.*;
 
 import javax.annotation.PostConstruct;
-
-import com.agoda.upload.web.web.entities.FailedReplicationEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FileUploadService {
-	
+
 	@Autowired
 	CacheProperties cache;
 	

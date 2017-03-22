@@ -1,6 +1,6 @@
-package com.agoda.upload.web.web.web;
+package com.agoda.upload.web;
 
-import com.agoda.upload.web.web.service.FileUploadService;
+import com.agoda.upload.service.FileUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -19,10 +19,9 @@ public class FIleUploadController {
     FileUploadService   fileUploadService;
 
 
-    @RequestMapping("/file/remittance")
-    public String saveRemittance(@RequestParam(value = "file") MultipartFile file, @RequestParam(value = "action") String action, ModelMap model,
+    @RequestMapping("/uploadFile")
+    public String uploadFile(@RequestParam(value = "file") MultipartFile file, @RequestParam(value = "action") String action, ModelMap model,
                                  HttpServletRequest request, @RequestParam(value = "param") String param) {
-        //TODO service code here
 
     	boolean isSuccess;
     	if(action.equalsIgnoreCase("Replicate")){

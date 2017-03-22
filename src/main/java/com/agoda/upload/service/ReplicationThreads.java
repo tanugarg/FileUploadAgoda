@@ -1,4 +1,4 @@
-package com.agoda.upload.web.web.service;
+package com.agoda.upload.service;
 
 import java.util.concurrent.Callable;
 

@@ -1,4 +1,4 @@
-package com.agoda.upload.web.web.service;
+package com.agoda.upload.service;
 
 import com.agoda.upload.web.web.entities.FailedReplicationEntry;
 import org.apache.commons.fileupload.disk.DiskFileItem;
