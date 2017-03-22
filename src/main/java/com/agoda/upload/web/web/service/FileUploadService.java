@@ -1,5 +1,6 @@
 package com.agoda.upload.web.web.service;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,8 @@ public class FileUploadService {
 		
 		String filePath = cache.getFilePath();
 		try {
-			saveMultiPartFile(file, filePath);
+			String savedPath= saveMultiPartFile(file, filePath);
+			System.out.println("File saved at location " + savedPath);
 			updateFileStatusInMysqlBatch(cache.getCurrentIP(),cache.getServerList(),filePath,FileUploadStatus.INPROGRESS);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -50,8 +52,11 @@ public class FileUploadService {
 		return true;
 	}
 	
-	public void saveMultiPartFile(MultipartFile file,String filePath) throws Exception{
-		
+	public String saveMultiPartFile(MultipartFile file,String filePath) throws Exception{
+		String completePath= filePath.concat(file.getOriginalFilename());  
+		File convFile = new File(completePath);
+		file.transferTo(convFile);
+		return completePath;
 	}
 	
 	public void replicateOnServers(MultipartFile file,String filePath){
