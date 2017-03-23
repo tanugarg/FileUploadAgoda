@@ -1,6 +1,6 @@
 package com.agoda.upload.service;
 
-import com.agoda.upload.web.web.entities.FailedReplicationEntry;
+import com.agoda.upload.entities.FailedReplicationEntry;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +36,7 @@ public class FailedReplicationProcessor extends Thread{
         this.failedReplications = failedReplications;
     }
     public void run(){
-        while(1==1){
+        while(true){
             Map<FailedReplicationEntry,Future<Object>> threadMap = new HashMap<FailedReplicationEntry,Future<Object>>();
             for(Map.Entry e : failedReplications.entrySet()){
                 File file = new File(e.getKey().toString());
