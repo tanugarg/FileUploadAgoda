@@ -46,12 +46,9 @@ public class FileUploadService {
                 replicateOnServers(file, savedPath, cache.getServerList());
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
         }
-        //TODO In separate thread. This call will block this thread
-
         return true;
     }
 
@@ -77,6 +74,8 @@ public class FileUploadService {
             Future<Object> submit = threadPool.submit(new ReplicationThreads(file, serverIp, tableRowId));
             threadMap.put(serverIp, submit);
         }
+
+
         for (Entry<String, Future<Object>> entry : threadMap.entrySet()) {
             try {
                 Integer rowId = (Integer) entry.getValue().get();
