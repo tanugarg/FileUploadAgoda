@@ -1,4 +1,4 @@
-package com.agoda.upload.web.web.service;
+package com.agoda.upload.service;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,6 +59,20 @@ public class ReplicationThreads implements Callable<Object>{
 		}
 		// TODO Call Rest api's to upload
 		return true;
+/*=======
+	private Integer tableRowId;
+	
+	ReplicationThreads(MultipartFile file,String serverIP, Integer tableRowId){
+		this.file=file;
+		this.serverIp=serverIP;
+	}
+	public Integer call() throws Exception {
+		// TODO Call Rest api's to upload
+		boolean success = true;
+		if (success) {
+			return tableRowId;
+		}
+		return null;*/
 	}
 	
 	//alternative code 

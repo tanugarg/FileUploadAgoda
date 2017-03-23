@@ -1,4 +1,4 @@
-package com.agoda.upload.web.web.service;
+package com.agoda.upload.service;
 
 import org.springframework.stereotype.Component;
 
@@ -6,12 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
