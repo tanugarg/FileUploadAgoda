@@ -8,14 +8,18 @@ public class ReplicationThreads implements Callable<Object>{
 
 	private MultipartFile file;
 	private String serverIp;
+	private Integer tableRowId;
 	
-	
-	ReplicationThreads(MultipartFile file,String serverIP){
+	ReplicationThreads(MultipartFile file,String serverIP, Integer tableRowId){
 		this.file=file;
 		this.serverIp=serverIP;
 	}
-	public Boolean call() throws Exception {
+	public Integer call() throws Exception {
 		// TODO Call Rest api's to upload
+		boolean success = true;
+		if (success) {
+			return tableRowId;
+		}
 		return null;
 	}
 
